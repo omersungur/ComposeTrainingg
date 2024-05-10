@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -84,10 +83,11 @@ fun App() {
     var filteredRecommendationList by remember { mutableStateOf(recommendationList) }
 
     Column {
-        Search(
-            recommendationList = recommendationList,
-            onFilterChange = { filteredList -> filteredRecommendationList = filteredList }
-        )
+        Search { str ->
+            filteredRecommendationList = recommendationList.filter {
+                it.name?.contains(str, ignoreCase = true) ?: false
+            }
+        }
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
@@ -121,8 +121,6 @@ fun App() {
 
 @Composable
 fun Search(
-    recommendationList: List<RecommendationHouse>,
-    onFilterChange: (List<RecommendationHouse>) -> Unit,
     onValueChange: (value: String) -> Unit,
 ) {
     var value by remember { mutableStateOf("") }
@@ -132,7 +130,10 @@ fun Search(
             Icon(Icons.Default.Search, contentDescription = "Search Icon")
         },
         value = value,
-        onValueChange = { onValueChange(it) },
+        onValueChange = {
+            value = it
+            onValueChange(it)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
@@ -279,7 +280,11 @@ fun RecommendationCard(modifier: Modifier = Modifier, recommendation: Recommenda
             )
 
             Column(modifier = Modifier.padding(start = 4.dp)) {
-                Text(text = recommendation.name.orEmpty(), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = recommendation.name.orEmpty(),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
 
                 Text(text = recommendation.address.orEmpty(), fontSize = 14.sp)
 
@@ -290,7 +295,10 @@ fun RecommendationCard(modifier: Modifier = Modifier, recommendation: Recommenda
                         contentDescription = "Favorite",
                     )
 
-                    Text(text = recommendation.star.toString(), modifier = Modifier.padding(start = 8.dp))
+                    Text(
+                        text = recommendation.star.toString(),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
             }
         }
