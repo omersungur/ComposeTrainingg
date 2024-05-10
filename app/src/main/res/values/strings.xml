@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ComposeTraining</string>
+    <string name="content_description_image">Resim</string>
 </resources>

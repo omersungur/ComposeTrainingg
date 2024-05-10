@@ -1,4 +1,4 @@
-package com.omersungur.composetraining
+package com.omersungur.composetraining.util
 
 import com.omersungur.composetraining.model.BestHouse
 import com.omersungur.composetraining.model.Category
@@ -6,22 +6,22 @@ import com.omersungur.composetraining.model.RecommendationHouse
 
 val recommendationList = listOf(
     RecommendationHouse(
-        "The Coach House 1",
-        "Noida Sec 1",
-        "https://res.akamaized.net/domain/image/upload/t_web/v1538713881/bigsmall_Mirvac_house2_twgogv.jpg",
-        5.0
+        name = "The Coach House 1",
+        address = "Noida Sec 1",
+        imageUrl = "https://res.akamaized.net/domain/image/upload/t_web/v1538713881/bigsmall_Mirvac_house2_twgogv.jpg",
+        star = 5.0
     ),
     RecommendationHouse(
-        "The Coach House 2",
-        "Noida Sec 2",
-        "https://thumbor.forbes.com/thumbor/fit-in/x/https://www.forbes.com/advisor/wp-content/uploads/2021/08/download-7.jpg",
-        5.0
+        name = "The Coach House 2",
+        address = "Noida Sec 2",
+        imageUrl = "https://thumbor.forbes.com/thumbor/fit-in/x/https://www.forbes.com/advisor/wp-content/uploads/2021/08/download-7.jpg",
+        star = 5.0
     ),
     RecommendationHouse(
-        "The Coach House 3",
-        "Noida Sec 3",
-        "https://www.houseplans.net/news/wp-content/uploads/2023/07/57260-768.jpeg",
-        5.0
+        name = "The Coach House 3",
+        address = "Noida Sec 3",
+        imageUrl = "https://www.houseplans.net/news/wp-content/uploads/2023/07/57260-768.jpeg",
+        star = 5.0
     ),
     RecommendationHouse(
         "The Coach House 4",

@@ -1,18 +1,23 @@
-package com.omersungur.composetraining
+package com.omersungur.composetraining.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -41,16 +46,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.omersungur.composetraining.R
 import com.omersungur.composetraining.model.BestHouse
 import com.omersungur.composetraining.model.Category
 import com.omersungur.composetraining.model.RecommendationHouse
 import com.omersungur.composetraining.ui.theme.ComposeTrainingTheme
+import com.omersungur.composetraining.util.Dimensions.spacing_s
+import com.omersungur.composetraining.util.bestHouseList
+import com.omersungur.composetraining.util.categoryList
+import com.omersungur.composetraining.util.recommendationList
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,11 +81,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    var filteredRecommendationList by remember {
-        mutableStateOf(
-            recommendationList
-        )
-    }
+    var filteredRecommendationList by remember { mutableStateOf(recommendationList) }
 
     Column {
         Search(
@@ -82,7 +89,11 @@ fun App() {
             onFilterChange = { filteredList -> filteredRecommendationList = filteredList }
         )
 
-        LazyRow {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             items(categoryList) {
                 CategoryRow(it)
             }
@@ -102,7 +113,7 @@ fun App() {
 
         LazyColumn {
             items(filteredRecommendationList) { recommended ->
-                Recommendation(recommended)
+                RecommendationCard(recommendation = recommended)
             }
         }
     }
@@ -111,23 +122,17 @@ fun App() {
 @Composable
 fun Search(
     recommendationList: List<RecommendationHouse>,
-    onFilterChange: (List<RecommendationHouse>) -> Unit
+    onFilterChange: (List<RecommendationHouse>) -> Unit,
+    onValueChange: (value: String) -> Unit,
 ) {
     var value by remember { mutableStateOf("") }
-    var filteredRecommendationList: List<RecommendationHouse>
 
     OutlinedTextField(
         leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = "Search Icon")
         },
         value = value,
-        onValueChange = { query ->
-            value = query
-            filteredRecommendationList = recommendationList.filter { recommendationHouse ->
-                recommendationHouse.name.contains(value)
-            }
-            onFilterChange(filteredRecommendationList)
-        },
+        onValueChange = { onValueChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
@@ -143,16 +148,12 @@ fun Search(
 @Composable
 fun CategoryRow(category: Category) {
     Button(
-        modifier = Modifier.padding(top = 8.dp, start = 16.dp),
         shape = RoundedCornerShape(4.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF5349F5),
-            contentColor = Color.White,
-            disabledContainerColor = Color.Gray,
-            disabledContentColor = Color.Black
-        ),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
         onClick = {
-        }) {
+            // sonar - comment
+        },
+    ) {
         Text(text = category.name)
     }
 }
@@ -161,20 +162,19 @@ fun CategoryRow(category: Category) {
 fun OptionsRow() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
             modifier = Modifier.padding(12.dp),
             text = "Best for you",
             fontSize = 16.sp,
-            style = TextStyle(
-                fontWeight = FontWeight.Bold
-            )
+            style = TextStyle(fontWeight = FontWeight.Bold)
         )
+
         Text(
             modifier = Modifier.padding(12.dp),
             text = "View All",
-            color = Color.Blue
+            color = Color.Blue,
         )
     }
 }
@@ -183,12 +183,16 @@ fun OptionsRow() {
 fun BestHouseRow(bestHouse: BestHouse) {
     Card(
         modifier = Modifier
-            .width(300.dp)
-            .height(300.dp)
+            .size(300.dp)
             .padding(8.dp)
+            .background(Color.White)
+            .clickable {
+                // sonar - comment
+            },
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
+                modifier = Modifier.fillMaxSize(),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(bestHouse.imageUrl)
                     .crossfade(true)
@@ -206,6 +210,7 @@ fun BestHouseRow(bestHouse: BestHouse) {
 
             ) {
                 Text(text = bestHouse.name, color = Color.White)
+
                 Text(text = bestHouse.address, color = Color.White)
             }
 
@@ -215,10 +220,7 @@ fun BestHouseRow(bestHouse: BestHouse) {
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(8.dp)
-                //.background(Color.White),
-
             ) {
-
                 Icon(
                     modifier = Modifier
                         .height(50.dp)
@@ -228,8 +230,7 @@ fun BestHouseRow(bestHouse: BestHouse) {
                     contentDescription = "Favorite"
                 )
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     Icon(
@@ -250,54 +251,48 @@ fun RecommendationTextView() {
     Text(
         modifier = Modifier.padding(8.dp),
         text = "Recommendations",
-        style = TextStyle(
-            fontWeight = FontWeight.Bold
-        )
+        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
     )
 }
 
 @Composable
-fun Recommendation(recommendation: RecommendationHouse) {
+fun RecommendationCard(modifier: Modifier = Modifier, recommendation: RecommendationHouse) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(120.dp)
-            .padding(8.dp),
-        shape = RoundedCornerShape(4.dp)
+            .padding(spacing_s),
+        shape = RoundedCornerShape(4.dp),
     ) {
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 modifier = Modifier
                     .padding(8.dp)
-                    .width(100.dp)
-                    .height(100.dp),
+                    .size(100.dp),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(recommendation.imageUrl)
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(R.drawable.ic_launcher_background),
-                contentDescription = "OK",
+                contentDescription = stringResource(id = R.string.content_description_image),
                 contentScale = ContentScale.Fit,
-                // modifier = Modifier.clip(CircleShape)
             )
-            Column(modifier = Modifier.padding(top = 16.dp, start = 4.dp)) {
-                Text(text = recommendation.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text(text = recommendation.address, fontSize = 14.sp)
+
+            Column(modifier = Modifier.padding(start = 4.dp)) {
+                Text(text = recommendation.name.orEmpty(), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+
+                Text(text = recommendation.address.orEmpty(), fontSize = 14.sp)
+
                 Row {
                     Icon(
                         imageVector = Icons.Filled.Star,
                         tint = Color.Yellow,
-                        contentDescription = "Favorite"
+                        contentDescription = "Favorite",
                     )
-                    Spacer(modifier = Modifier.padding(end = 8.dp))
-                    Text(text = recommendation.star.toString())
+
+                    Text(text = recommendation.star.toString(), modifier = Modifier.padding(start = 8.dp))
                 }
             }
         }
     }
 }
-
-
-
-
-
